@@ -1,20 +1,19 @@
 #!/bin/bash
 set -e
 
-echo "Installing OpenCV 4.6.0 on your Jetson Nano"
+echo "Installing OpenCV 4.6.0 on your Jetson Orin"
 echo "It will take 3 hours !"
 
 # reveal the CUDA location
-cd ~
-sudo sh -c "echo '/usr/local/cuda/lib64' >> /etc/ld.so.conf.d/nvidia-tegra.conf"
-sudo ldconfig
+#cd ~
+#sudo sh -c "echo '/usr/local/cuda/lib64' >> /etc/ld.so.conf.d/nvidia-tegra.conf"
+#sudo ldconfig
 
 # install the dependencies
 sudo apt-get install -y build-essential cmake git unzip pkg-config zlib1g-dev
 sudo apt-get install -y libjpeg-dev libjpeg8-dev libjpeg-turbo8-dev libpng-dev libtiff-dev
 sudo apt-get install -y libavcodec-dev libavformat-dev libswscale-dev libglew-dev
 sudo apt-get install -y libgtk2.0-dev libgtk-3-dev libcanberra-gtk*
-sudo apt-get install -y python-dev python-numpy python-pip
 sudo apt-get install -y python3-dev python3-numpy python3-pip
 sudo apt-get install -y libxvidcore-dev libx264-dev libgtk-3-dev
 sudo apt-get install -y libtbb2 libtbb-dev libdc1394-22-dev libxine2-dev
@@ -26,37 +25,35 @@ sudo apt-get install -y libopencore-amrnb-dev libopencore-amrwb-dev
 sudo apt-get install -y libopenblas-dev libatlas-base-dev libblas-dev
 sudo apt-get install -y liblapack-dev liblapacke-dev libeigen3-dev gfortran
 sudo apt-get install -y libhdf5-dev protobuf-compiler
-sudo apt-get install -y libprotobuf-dev libgoogle-glog-dev libgflags-dev
 
 # remove old versions or previous builds
-cd ~ 
-sudo rm -rf opencv*
+#cd ~ 
+#sudo rm -rf opencv*
 # download the latest version
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.6.0.zip 
 wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.6.0.zip 
-# unpack
+## unpack
 unzip opencv.zip 
 unzip opencv_contrib.zip 
-# some administration to make live easier later on
+## some administration to make live easier later on
 mv opencv-4.6.0 opencv
 mv opencv_contrib-4.6.0 opencv_contrib
-# clean up the zip files
-rm opencv.zip
-rm opencv_contrib.zip
+#
+## set install dir
+#cd opencv
+mkdir -p opencv/build
+cd opencv/build
 
-# set install dir
-cd ~/opencv
-mkdir build
-cd build
+pwd
 
 # run cmake
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
--D CMAKE_INSTALL_PREFIX=/usr \
--D OPENCV_EXTRA_MODULES_PATH=~/opencv_contrib/modules \
+-D CMAKE_INSTALL_PREFIX=/usr/local \
+-D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules \
 -D EIGEN_INCLUDE_PATH=/usr/include/eigen3 \
 -D WITH_OPENCL=OFF \
 -D WITH_CUDA=ON \
--D CUDA_ARCH_BIN=5.3 \
+-D CUDA_ARCH_BIN=8.7 \
 -D CUDA_ARCH_PTX="" \
 -D WITH_CUDNN=ON \
 -D WITH_CUBLAS=ON \
@@ -86,14 +83,14 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 FREE_MEM="$(free -m | awk '/^Swap/ {print $2}')"
 # Use "-j 4" only swap space is larger than 5.5GB
 if [[ "FREE_MEM" -gt "5500" ]]; then
-  NO_JOB=4
+  NO_JOB=${nproc}
 else
   echo "Due to limited swap, make only uses 1 core"
   NO_JOB=1
 fi
 make -j ${NO_JOB} 
 
-sudo rm -r /usr/include/opencv4/opencv2
+#sudo rm -r /usr/include/opencv4/opencv2
 sudo make install
 sudo ldconfig
 
@@ -101,5 +98,10 @@ sudo ldconfig
 make clean
 sudo apt-get update
 
+# clean up the zip files
+cd ../../
+rm opencv.zip
+rm opencv_contrib.zip
+
 echo "Congratulations!"
-echo "You've successfully installed OpenCV 4.6.0 on your Jetson Nano"
+echo "You've successfully installed OpenCV 4.6.0 on your Jetson Orin"
