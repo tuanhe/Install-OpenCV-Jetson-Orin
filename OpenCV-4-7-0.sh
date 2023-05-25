@@ -31,7 +31,7 @@ sudo apt-get install -y libprotobuf-dev libgoogle-glog-dev libgflags-dev
 #cd ~
 pwd
 
-sudo rm -rf opencv*
+# sudo rm -rf opencv*
 # download the latest version
 wget -O opencv.zip https://github.com/opencv/opencv/archive/4.7.0.zip 
 wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/4.7.0.zip 
@@ -61,7 +61,7 @@ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 -D ENABLE_FAST_MATH=ON \
 -D CUDA_FAST_MATH=ON \
 -D OPENCV_DNN_CUDA=ON \
--D ENABLE_NEON=ON \
+-D ENABLE_NEON=OFF \
 -D WITH_QT=OFF \
 -D WITH_OPENMP=ON \
 -D BUILD_TIFF=ON \
@@ -91,7 +91,7 @@ else
 fi
 make -j ${NO_JOB} 
 
-sudo rm -r /usr/include/opencv4/opencv2
+#sudo rm -r /usr/include/opencv4/opencv2
 sudo make install
 sudo ldconfig
 
